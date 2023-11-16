@@ -19,8 +19,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+github.com:MDReal32/prisma-generator-seed.git",
-    "directory": "."
+    "url": "https://github.com/MDReal32/prisma-generator-seed.git"
   },
   "license": "Apche-2.0",
   "author": {
