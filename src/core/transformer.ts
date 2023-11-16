@@ -72,11 +72,13 @@ export class Transformer {
     return this.config;
   }
 
-  static async loadConfigFromDisk() {
+  static async loadConfigFromDisk(force = true) {
     try {
       this.config = JSON.parse(await readFile(this.configFile, "utf-8"));
     } catch (e) {
-      throw new Error(`Please add generator ${name} to schema.prisma file`);
+      if (force) {
+        throw new Error(`Please add generator ${name} to schema.prisma file`);
+      }
     }
   }
 

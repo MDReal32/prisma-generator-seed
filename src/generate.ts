@@ -22,7 +22,7 @@ export const generate = async (options: GeneratorOptions) => {
   const generatorConfig = options.generator.config as GeneratorConfig;
   generatorConfig.seedsDir = resolve(process.cwd(), generatorConfig.seedsDir || "prisma/seeds");
 
-  await Transformer.loadConfigFromDisk();
+  await Transformer.loadConfigFromDisk(false);
   Transformer.setConfig({ output: options.generator.output.value, ...generatorConfig });
 
   const transformer = new Transformer(
