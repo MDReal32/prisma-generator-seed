@@ -24,6 +24,10 @@ export const generate = async (options: GeneratorOptions) => {
     process.cwd(),
     generatorConfig.seedsDir || `${dirname(options.schemaPath)}/seeds`
   );
+  generatorConfig.migrationsDir = resolve(
+    process.cwd(),
+    `${dirname(options.schemaPath)}/migrations`
+  );
 
   await Transformer.loadConfigFromDisk();
   Transformer.setConfig({ output: options.generator.output.value, ...generatorConfig });

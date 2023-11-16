@@ -1,6 +1,6 @@
 {
   "name": "prisma-generator-seed",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "A Prisma generator that generates seed data for your database using json data",
   "keywords": [
     "prisma",
@@ -28,8 +28,8 @@
     "url": "https://github.com/MDReal32"
   },
   "bin": {
-    "prisma-generator-seed": "bin/generator",
-    "prisma-seeder": "bin/seeder"
+    "prisma-generator-seed": "./bin/generator",
+    "prisma-seeder": "./bin/seeder"
   },
   "files": [
     "bin",
@@ -68,6 +68,6 @@
   },
   "packageManager": "yarn@4.0.1",
   "prisma": {
-    "seed": "prisma-seeder"
+    "seed": "./bin/seeder"
   }
 }

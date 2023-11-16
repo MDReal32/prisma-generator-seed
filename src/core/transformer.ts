@@ -37,6 +37,7 @@ interface ObjectOptions {
 export interface Config {
   output: string;
   seedsDir: string;
+  migrationsDir: string;
 }
 
 export class Transformer {

@@ -9,6 +9,7 @@ import { prisma } from "../main";
 import { Seed } from "../types/seed";
 import { insert } from "../utils/insert";
 import { serialize } from "../utils/serialize";
+import { Transformer } from "./transformer";
 
 interface Data {
   data: any[];
@@ -22,6 +23,7 @@ interface Options {
 
 export const seedData = async (anySeed: Record<string, Data>, options: Options) => {
   const date = new Date();
+  const pureName = options.name.replace(extname(options.name), "");
   const time = [
     date.getFullYear(),
     date.getMonth() + 1,
@@ -31,13 +33,19 @@ export const seedData = async (anySeed: Record<string, Data>, options: Options) 
     date.getSeconds()
   ].join("");
 
-  const seedName = `${time}_${options.name.replace(extname(options.name), "")}`;
+  const foundSeed = options.migratedSeeds.find(({ migration_name }) =>
+    migration_name.endsWith(pureName)
+  );
+  const config = Transformer.getConfig();
+
+  const seedName = `${time}_${pureName}`;
   const tables = Object.keys(anySeed);
 
   const checksum = crypto.createHash("sha256").update(serialize(anySeed)).digest("hex");
-  if (existsSync(`./prisma/migrations/${seedName}/seed.sha256`)) {
+
+  if (foundSeed && existsSync(`${config.migrationsDir}/${foundSeed.migration_name}/seed.sha256`)) {
     const prevChecksum = await readFile(
-      `./prisma/migrations/${seedName}/seed.sha256`,
+      `${config.migrationsDir}/${foundSeed.migration_name}/seed.sha256`,
       "utf-8"
     ).catch(() => null);
     if (prevChecksum === checksum) {
@@ -54,17 +62,31 @@ export const seedData = async (anySeed: Record<string, Data>, options: Options) 
       const values = anySeed[table];
 
       for (const datum of values.data) {
-        const where =
-          values.upsertBy?.reduce((acc, key) => {
-            acc[key] = datum[key];
-            return acc;
-          }, {}) || {};
+        if (values.upsertBy) {
+          const where =
+            values.upsertBy.reduce((acc, key) => {
+              acc[key] = datum[key];
+              return acc;
+            }, {}) || {};
 
-        prisma.language.upsert({
-          create: datum,
-          update: datum,
-          where: where as any
-        });
+          await prisma[table].upsert({
+            create: datum,
+            update: datum,
+            where: where as any
+          });
+        } else {
+          try {
+            await prisma[table].create({ data: datum });
+          } catch (e) {
+            if (e.code === "P2002") {
+              return console.warn(
+                `Please add "upsertBy" to "${table}" seed data for finding duplicates. We can't create duplicate data.`
+              );
+            }
+
+            throw e;
+          }
+        }
       }
     }
   });
