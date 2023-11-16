@@ -1,6 +1,6 @@
 {
   "name": "prisma-generator-seed",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "description": "A Prisma generator that generates seed data for your database using json data",
   "keywords": [
     "prisma",
@@ -21,7 +21,7 @@
     "type": "git",
     "url": "https://github.com/MDReal32/prisma-generator-seed.git"
   },
-  "license": "Apche-2.0",
+  "license": "Apache-2.0",
   "author": {
     "name": "MDReal",
     "email": "mdrealiyev00@gmail.com",
