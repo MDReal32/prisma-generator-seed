@@ -2349,8 +2349,8 @@ __metadata:
     typescript: "npm:^5.2.2"
     uuid: "npm:^9.0.1"
   bin:
-    prisma-generator-seed: ./bin/generator
-    prisma-seeder: ./bin/seeder
+    prisma-generator-seed: bin/generator
+    prisma-seeder: bin/seeder
   languageName: unknown
   linkType: soft
 

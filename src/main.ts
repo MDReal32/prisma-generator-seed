@@ -12,6 +12,7 @@ import { Seed } from "./types/seed";
 const getAllSeeds = `SELECT * FROM "_prisma_migrations"`;
 
 export const prisma = new PrismaClient();
+
 const main = async () => {
   await prisma.$connect();
 
@@ -33,6 +34,9 @@ const main = async () => {
     }
     await seedData(seedDataPiece, { name: seed, migratedSeeds });
   }
+
+  Transformer.setConfig(config);
+  await Transformer.saveConfigToDisk();
 };
 
 if (require.main === module)

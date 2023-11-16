@@ -1,4 +1,4 @@
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 
 import { GeneratorOptions } from "@prisma/generator-helper";
 import { getDMMF } from "@prisma/internals";
@@ -20,7 +20,10 @@ export const generate = async (options: GeneratorOptions) => {
   });
 
   const generatorConfig = options.generator.config as GeneratorConfig;
-  generatorConfig.seedsDir = resolve(process.cwd(), generatorConfig.seedsDir || "prisma/seeds");
+  generatorConfig.seedsDir = resolve(
+    process.cwd(),
+    generatorConfig.seedsDir || `${dirname(options.schemaPath)}/seeds`
+  );
 
   await Transformer.loadConfigFromDisk();
   Transformer.setConfig({ output: options.generator.output.value, ...generatorConfig });

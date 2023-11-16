@@ -5,7 +5,6 @@ generator client {
 
 generator seed {
   provider = "prisma-generator-seed"
-  seeds    = "prisma/seeds"
 }
 
 datasource db {
