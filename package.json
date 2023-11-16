@@ -1,5 +1,7 @@
 {
   "name": "prisma-generator-seed",
+  "version": "1.0.1",
+  "description": "A Prisma generator that generates seed data for your database using json data",
   "bin": {
     "prisma-generator-seed": "./bin/generator",
     "prisma-seeder": "./bin/seeder"
@@ -13,9 +15,16 @@
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "dev": "tsc --project tsconfig.json --watch",
-    "prepublishOnly": "yarn build",
     "prisma:migrate": "prisma migrate dev --name",
     "prisma:seed": "yarn prisma db seed"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.5.2",
+    "@prisma/generator-helper": "^5.5.2",
+    "@prisma/internals": "^5.5.2",
+    "json-schema": "^0.4.0",
+    "prisma": "^5.5.2",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
@@ -30,15 +39,7 @@
     "typescript": "^5.2.2"
   },
   "packageManager": "yarn@4.0.1",
-  "dependncies": {
-    "@prisma/client": "^5.5.2",
-    "@prisma/generator-helper": "^5.5.2",
-    "@prisma/internals": "^5.5.2",
-    "json-schema": "^0.4.0",
-    "prisma": "^5.5.2",
-    "uuid": "^9.0.1"
-  },
   "prisma": {
-    "seed": "./bin/seeder"
+    "seed": "prisma-seeder"
   }
 }
