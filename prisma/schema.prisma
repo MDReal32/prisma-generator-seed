@@ -1,0 +1,134 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+generator seed {
+  provider = "./bin/generator"
+  seeds    = "prisma/seeds"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:postgres@localhost:42354/postgres?schema=test"
+}
+
+model User {
+  id      String @id @default(uuid())
+  name    String
+  email   String @unique
+  picture String
+
+  lessons Lesson[]
+
+  profile   UserProfile @relation(fields: [profileId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  profileId String      @unique
+}
+
+model UserProfile {
+  id String @id @default(uuid())
+
+  language   Language @relation(fields: [languageId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  languageId String
+
+  user User?
+}
+
+model Lesson {
+  id String @id @default(uuid())
+
+  user   User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  userId String
+
+  words  Word   @relation(fields: [wordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  wordId String
+
+  results     Result[]
+  lessonTimes LessonTimes[]
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  nextViewAt DateTime?
+  deletedAt  DateTime?
+}
+
+model LessonTimes {
+  id String @id @default(uuid())
+
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  lessonId String
+
+  time   Times  @relation(fields: [timeId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  timeId String
+
+  done Boolean @default(false)
+}
+
+model Times {
+  id String @id @default(uuid())
+
+  code String @unique
+  time Int
+
+  lessonTimes LessonTimes[]
+}
+
+model Result {
+  id String @id @default(uuid())
+
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  lessonId String
+
+  resultWords ResultWord[]
+}
+
+model ResultWord {
+  id String @id @default(uuid())
+
+  result   Result @relation(fields: [resultId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  resultId String
+
+  word   Word   @relation(fields: [wordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  wordId String
+
+  isSuccess Boolean
+}
+
+model Word {
+  id String @id @default(uuid())
+
+  translations WordTranslations[]
+  lessons      Lesson[]
+  resultWords  ResultWord[]
+}
+
+model WordTranslations {
+  id          String @id @default(uuid())
+  translation String
+
+  word   Word   @relation(fields: [wordId], references: [id])
+  wordId String
+
+  addition   TranslationAddition @relation(fields: [additionId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  additionId String
+
+  language   Language @relation(fields: [languageId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  languageId String
+}
+
+model Language {
+  id   String @id @default(uuid())
+  name String
+  code String @unique
+
+  users UserProfile[]
+  words WordTranslations[]
+}
+
+model TranslationAddition {
+  id            String  @id @default(uuid())
+  transcription String?
+  audioFileId   String?
+
+  translations WordTranslations[]
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "../../node_modules/.prisma/seed/schema.json",
+  "times": {
+    "data": [
+      { "code": "20m", "time": 1200 },
+      { "code": "8h", "time": 28800 },
+      { "code": "1d", "time": 86400 },
+      { "code": "1w", "time": 604800 },
+      { "code": "1m", "time": 2626560 },
+      { "code": "6m", "time": 15759360 },
+      { "code": "1y", "time": 31518720 }
+    ]
+  }
+}
