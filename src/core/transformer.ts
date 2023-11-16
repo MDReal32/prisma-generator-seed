@@ -167,16 +167,6 @@ export class Transformer {
 
       acc[tableName] = {
         item: this.convertModelToType(model),
-        // relation: this.object(
-        //   this.uniqueFields[tableName].reduce(
-        //     (acc, field) => {
-        //       const dmmfField = this.fields[`${tableName}#${field}`];
-        //       acc[field] = this.convertFieldToType(dmmfField);
-        //       return acc;
-        //     },
-        //     { id: this.uuid() } as Record<string, JSONSchema7Definition>
-        //   )
-        // ),
         model: this.object(
           {
             data: this.array(this.ref(`#/definitions/${tableName}/item`)),
@@ -217,7 +207,7 @@ export class Transformer {
     );
   }
 
-  private convertModelToType(model: DMMF.Model) {
+  private convertModelToType(model: DMMF.Model): JSONSchema7Definition {
     return {
       type: "object",
       properties: model.fields.reduce((acc, field) => {
@@ -228,7 +218,8 @@ export class Transformer {
           }
         }
         return acc;
-      }, {})
+      }, {}),
+      additionalProperties: false
     };
   }
 
