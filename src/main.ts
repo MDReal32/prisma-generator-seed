@@ -39,7 +39,6 @@ const main = async () => {
   await Transformer.saveConfigToDisk();
 };
 
-if (require.main === module)
-  main()
-    .catch(console.error)
-    .finally(() => prisma.$disconnect());
+main()
+  .catch(console.error)
+  .finally(() => prisma.$disconnect());
