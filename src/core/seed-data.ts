@@ -1,6 +1,6 @@
 import * as crypto from "node:crypto";
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
-import { extname } from "node:path";
+import { dirname, extname, resolve } from "node:path";
 
 import { existsSync } from "fs";
 import { v4 } from "uuid";
@@ -22,41 +22,30 @@ interface Options {
 }
 
 export const seedData = async (anySeed: Record<string, Data>, options: Options) => {
-  const date = new Date();
   const pureName = options.name.replace(extname(options.name), "");
-  const time = [
-    date.getFullYear(),
-    date.getMonth() + 1,
-    date.getDate(),
-    date.getHours(),
-    date.getMinutes(),
-    date.getSeconds()
-  ].join("");
 
   const foundSeed = options.migratedSeeds.find(({ migration_name }) =>
     migration_name.endsWith(pureName)
   );
+
   const config = Transformer.getConfig();
-
-  const seedName = `${time}_${pureName}`;
-  const tables = Object.keys(anySeed);
-
   const checksum = crypto.createHash("sha256").update(serialize(anySeed)).digest("hex");
 
-  if (foundSeed && existsSync(`${config.migrationsDir}/${foundSeed.migration_name}/seed.sha256`)) {
-    const prevChecksum = await readFile(
-      `${config.migrationsDir}/${foundSeed.migration_name}/seed.sha256`,
-      "utf-8"
-    ).catch(() => null);
-    if (prevChecksum === checksum) {
-      console.log(`\x1b[2mSeed "${options.name}" seeded successfully before.\x1b[0m`);
-      return;
-    } else {
-      throw new Error(`Seed "${options.name}" is invalid. Please rollback to previous seed.`);
+  if (foundSeed) {
+    const sha256FilePath = resolve(config.migrationsDir, foundSeed.migration_name, "seed.sha256");
+    if (existsSync(sha256FilePath)) {
+      const prevChecksum = await readFile(sha256FilePath, "utf-8").catch(() => null);
+      if (prevChecksum === checksum) {
+        console.log(`\x1b[2mSeed "${options.name}" seeded successfully before.\x1b[0m`);
+        return;
+      } else {
+        throw new Error(`Seed "${options.name}" is invalid. Please rollback to previous seed.`);
+      }
     }
   }
 
   const startedAt = new Date();
+  const tables = Object.keys(anySeed);
   await prisma.$transaction(async prisma => {
     for (const table of tables) {
       const values = anySeed[table];
@@ -91,11 +80,23 @@ export const seedData = async (anySeed: Record<string, Data>, options: Options) 
     }
   });
 
-  const finishedAt = new Date();
+  const date = new Date();
+  const time = [
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate(),
+    date.getHours(),
+    date.getMinutes(),
+    date.getSeconds()
+  ].join("");
+  const seedName = `${time}_${pureName}`;
 
-  await mkdir(`./prisma/migrations/${seedName}`, { recursive: true });
-  await writeFile(`./prisma/migrations/${seedName}/seed.sha256`, checksum);
-  await writeFile(`./prisma/migrations/${seedName}/migration.sql`, ``);
+  const finishedAt = new Date();
+  const newSha256FilePath = resolve(config.migrationsDir, seedName, "seed.sha256");
+
+  await mkdir(resolve(dirname(newSha256FilePath)), { recursive: true });
+  await writeFile(newSha256FilePath, checksum);
+  await writeFile(resolve(config.migrationsDir, seedName, "migration.sql"), ``);
 
   console.log(
     `\x1b[2mSeed "${options.name}" seeded successfully.\x1b[0m`,
