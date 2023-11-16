@@ -8,8 +8,6 @@ import { PartialDeep } from "type-fest";
 
 import { DMMF } from "@prisma/generator-helper";
 
-import { name } from "../../package.json";
-
 interface Fields {
   from: string[];
   to: string[];
@@ -209,6 +207,7 @@ export class Transformer {
   async saveToDisk() {
     const config = Transformer.getConfig();
 
+    await mkdir(config.output, { recursive: true });
     await writeFile(
       `${config.output}/schema.json`,
       await format(JSON.stringify(this.schema), {

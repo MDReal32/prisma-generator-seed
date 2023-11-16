@@ -12,7 +12,7 @@ import { Seed } from "./types/seed";
 const getAllSeeds = `SELECT * FROM "_prisma_migrations"`;
 
 export const prisma = new PrismaClient();
-(async () => {
+const main = async () => {
   await prisma.$connect();
 
   const migratedSeeds = await prisma.$queryRawUnsafe<Seed[]>(getAllSeeds);
@@ -33,6 +33,9 @@ export const prisma = new PrismaClient();
     }
     await seedData(seedDataPiece, { name: seed, migratedSeeds });
   }
-})()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect());
+};
+
+if (require.main === module)
+  main()
+    .catch(console.error)
+    .finally(() => prisma.$disconnect());
