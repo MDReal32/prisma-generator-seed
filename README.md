@@ -11,7 +11,7 @@ generator seed {
 }
 ```
 
-Then create a file called `seed.json` in the root of your project.
+Then create a file called `seed.json` in the `prisma/seeds` directory.
 ```json
 {
   "$schema": "relative/path/to/node_modules/.prisma/seed/schema.json",
@@ -22,7 +22,7 @@ Then create a file called `seed.json` in the root of your project.
 }
 ```
 
-`data` and `upsertBy` fields are autocompleted by your IDE after generating the schema. `data` is a list of seed data. `upsertBy` is unique fields from your model that will be used to check availability of the data. If the data is already in the database, it will be updated instead of created.
+`data` and `upsertBy` fields are autocompleted by your IDE after generating the schema. `data` field is a list of seedable data. `upsertBy` is unique fields from your model that will be used to check availability of the data. If the data is already in the database, it will be updated instead of created.
 
 And add this script to package.json
 ```json
@@ -36,4 +36,4 @@ And add this script to package.json
 Then run `prisma migrate dev` and it will apply the seed data to your database.
 
 # How it works
-Generator generates a `schema.json` file inside `<root>/node_modules/.prisma/seed/schema.json` and it will be used by ide and the generator itself to validate/autocomplete a seed file for corresponding model.
+Generator generates a `schema.json` file inside `<root>/node_modules/.prisma/seed/schema.json` and it will be used by IDE and the generator itself to validate/autocomplete a seed file for corresponding model.
