@@ -1,6 +1,6 @@
 {
   "name": "prisma-generator-seed",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A Prisma generator that generates seed data for your database using json data",
   "bin": {
     "prisma-generator-seed": "./bin/generator",
