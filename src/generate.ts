@@ -6,31 +6,36 @@ import { getDMMF } from "@prisma/internals";
 import { Config, Transformer } from "./core/transformer";
 import { getGeneratorConfigByProvider } from "./utils/get-generator-config-by-provider";
 
-interface GeneratorConfig extends Omit<Config, "output"> {}
-
-export const generate = async (options: GeneratorOptions) => {
+export const generate = async ({
+  schemaPath,
+  datamodel,
+  otherGenerators,
+  generator
+}: GeneratorOptions) => {
+  await Config.loadConfigFromDisk();
   const prismaClientGeneratorConfig = getGeneratorConfigByProvider(
-    options.otherGenerators,
+    otherGenerators,
     "prisma-client-js"
   );
 
   const prismaClientDmmf = await getDMMF({
-    datamodel: options.datamodel,
+    datamodel,
     previewFeatures: prismaClientGeneratorConfig?.previewFeatures
   });
 
-  const generatorConfig = options.generator.config as GeneratorConfig;
-  generatorConfig.seedsDir = resolve(
-    process.cwd(),
-    generatorConfig.seedsDir || `${dirname(options.schemaPath)}/seeds`
-  );
-  generatorConfig.migrationsDir = resolve(
-    process.cwd(),
-    `${dirname(options.schemaPath)}/migrations`
-  );
+  const config: Config = {
+    output: resolve(dirname(schemaPath), "json-schema"),
+    publishable: false,
+    schemaFile: resolve(process.cwd(), generator.output.value, "json-schema.json"),
+    seedsDir: resolve(process.cwd(), dirname(schemaPath), "seeds"),
+    migrationsDir: resolve(process.cwd(), dirname(schemaPath), "migrations"),
+    prettyNames: {},
+    relationalFields: {},
+    relationalModels: {},
+    uniqueFields: {}
+  };
 
-  await Transformer.loadConfigFromDisk();
-  Transformer.setConfig({ output: options.generator.output.value, ...generatorConfig });
+  Config.setConfig(config);
 
   const transformer = new Transformer(
     prismaClientDmmf.datamodel.models,
@@ -40,5 +45,4 @@ export const generate = async (options: GeneratorOptions) => {
   transformer.prepare();
   transformer.convertToSchema();
   await transformer.saveToDisk();
-  await Transformer.saveConfigToDisk();
 };
