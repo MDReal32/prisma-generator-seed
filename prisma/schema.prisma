@@ -12,6 +12,8 @@ datasource db {
   url      = "postgresql://postgres:postgres@localhost:42354/postgres?schema=test"
 }
 
+// Found example project from net
+
 model User {
   id      String @id @default(uuid())
   name    String
@@ -57,14 +59,14 @@ model LessonTimes {
   lesson   Lesson @relation(fields: [lessonId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   lessonId String
 
-  time   Times  @relation(fields: [timeId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  timeId String
+  time   Times @relation(fields: [timeId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  timeId Int
 
   done Boolean @default(false)
 }
 
 model Times {
-  id String @id @default(uuid())
+  id Int @id @default(autoincrement())
 
   code String @unique
   time Int
@@ -93,23 +95,33 @@ model ResultWord {
   isSuccess Boolean
 }
 
+model SpeechPart {
+  id   String @id @default(uuid())
+  name String @unique
+
+  words Word[]
+}
+
 model Word {
   id String @id @default(uuid())
 
-  translations WordTranslations[]
-  lessons      Lesson[]
-  resultWords  ResultWord[]
+  lessons          Lesson[]
+  resultWords      ResultWord[]
+  wordTranslations WordTranslation[]
+
+  speechPart   SpeechPart @relation(fields: [speechPartId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  speechPartId String
 }
 
-model WordTranslations {
+model WordTranslation {
   id          String @id @default(uuid())
-  translation String
+  translation String @unique
 
-  word   Word   @relation(fields: [wordId], references: [id])
+  word   Word   @relation(fields: [wordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   wordId String
 
-  addition   TranslationAddition @relation(fields: [additionId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  additionId String
+  translationAddition   TranslationAddition @relation(fields: [translationAdditionId], references: [id])
+  translationAdditionId String
 
   language   Language @relation(fields: [languageId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   languageId String
@@ -120,8 +132,8 @@ model Language {
   name String
   code String @unique
 
-  users UserProfile[]
-  words WordTranslations[]
+  profiles         UserProfile[]
+  wordTranslations WordTranslation[]
 }
 
 model TranslationAddition {
@@ -129,5 +141,19 @@ model TranslationAddition {
   transcription String?
   audioFileId   String?
 
-  translations WordTranslations[]
+  wordTranslations WordTranslation[]
+}
+
+model Book {
+  id          String @id @default(uuid())
+  name        String
+  description String
+  coverFileId String
+}
+
+model File {
+  id   String @id @default(uuid())
+  name String
+  url  String
+  path String
 }

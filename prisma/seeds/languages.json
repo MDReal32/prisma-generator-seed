@@ -1,10 +1,8 @@
 {
-  "$schema": "../../node_modules/.prisma/seed/schema.json",
-  "language": {
-    "data": [
-      { "name": "Azerbaijan", "code": "az" },
-      { "name": "English", "code": "en" },
-      { "name": "Russian", "code": "ru" }
-    ]
-  }
+  "$schema": "../json-schema/json-schema.json",
+  "language": [
+    { "name": "Azerbaijan", "code": "az" },
+    { "name": "English", "code": "en" },
+    { "name": "Russian", "code": "ru" }
+  ]
 }

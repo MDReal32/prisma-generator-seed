@@ -1,0 +1,226 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "definitions": {
+    "User": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8}$" },
+          "name": { "type": "string" },
+          "email": { "type": "string" },
+          "picture": { "type": "string" },
+          "lessons": { "$ref": "#/definitions/Lesson/items" },
+          "profile": { "$ref": "#/definitions/UserProfile/item" },
+          "profileId": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "items": { "type": "array", "items": { "$ref": "#/definitions/User/item" } }
+    },
+    "UserProfile": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8}$" },
+          "language": { "$ref": "#/definitions/Language/item" },
+          "languageId": { "type": "string" },
+          "user": { "$ref": "#/definitions/User/item" }
+        },
+        "additionalProperties": false
+      },
+      "items": { "type": "array", "items": { "$ref": "#/definitions/UserProfile/item" } }
+    },
+    "Lesson": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8}$" },
+          "user": { "$ref": "#/definitions/User/item" },
+          "userId": { "type": "string" },
+          "words": { "$ref": "#/definitions/Word/item" },
+          "wordId": { "type": "string" },
+          "results": { "$ref": "#/definitions/Result/items" },
+          "lessonTimes": { "$ref": "#/definitions/LessonTimes/items" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" },
+          "nextViewAt": { "type": "string", "format": "date-time" },
+          "deletedAt": { "type": "string", "format": "date-time" }
+        },
+        "additionalProperties": false
+      },
+      "items": { "type": "array", "items": { "$ref": "#/definitions/Lesson/item" } }
+    },
+    "LessonTimes": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8}$" },
+          "lesson": { "$ref": "#/definitions/Lesson/item" },
+          "lessonId": { "type": "string" },
+          "time": { "$ref": "#/definitions/Times/item" },
+          "timeId": { "type": "number" },
+          "done": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      },
+      "items": { "type": "array", "items": { "$ref": "#/definitions/LessonTimes/item" } }
+    },
+    "Times": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8}$" },
+          "code": { "type": "string" },
+          "time": { "type": "number" },
+          "lessonTimes": { "$ref": "#/definitions/LessonTimes/items" }
+        },
+        "additionalProperties": false
+      },
+      "items": { "type": "array", "items": { "$ref": "#/definitions/Times/item" } }
+    },
+    "Result": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8}$" },
+          "lesson": { "$ref": "#/definitions/Lesson/item" },
+          "lessonId": { "type": "string" },
+          "resultWords": { "$ref": "#/definitions/ResultWord/items" }
+        },
+        "additionalProperties": false
+      },
+      "items": { "type": "array", "items": { "$ref": "#/definitions/Result/item" } }
+    },
+    "ResultWord": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8}$" },
+          "result": { "$ref": "#/definitions/Result/item" },
+          "resultId": { "type": "string" },
+          "word": { "$ref": "#/definitions/Word/item" },
+          "wordId": { "type": "string" },
+          "isSuccess": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      },
+      "items": { "type": "array", "items": { "$ref": "#/definitions/ResultWord/item" } }
+    },
+    "SpeechPart": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8}$" },
+          "name": { "type": "string" },
+          "words": { "$ref": "#/definitions/Word/items" }
+        },
+        "additionalProperties": false
+      },
+      "items": { "type": "array", "items": { "$ref": "#/definitions/SpeechPart/item" } }
+    },
+    "Word": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8}$" },
+          "lessons": { "$ref": "#/definitions/Lesson/items" },
+          "resultWords": { "$ref": "#/definitions/ResultWord/items" },
+          "wordTranslations": { "$ref": "#/definitions/WordTranslation/items" },
+          "speechPart": { "$ref": "#/definitions/SpeechPart/item" },
+          "speechPartId": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "items": { "type": "array", "items": { "$ref": "#/definitions/Word/item" } }
+    },
+    "WordTranslation": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8}$" },
+          "translation": { "type": "string" },
+          "word": { "$ref": "#/definitions/Word/item" },
+          "wordId": { "type": "string" },
+          "translationAddition": { "$ref": "#/definitions/TranslationAddition/item" },
+          "translationAdditionId": { "type": "string" },
+          "language": { "$ref": "#/definitions/Language/item" },
+          "languageId": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "items": { "type": "array", "items": { "$ref": "#/definitions/WordTranslation/item" } }
+    },
+    "Language": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8}$" },
+          "name": { "type": "string" },
+          "code": { "type": "string" },
+          "profiles": { "$ref": "#/definitions/UserProfile/items" },
+          "wordTranslations": { "$ref": "#/definitions/WordTranslation/items" }
+        },
+        "additionalProperties": false
+      },
+      "items": { "type": "array", "items": { "$ref": "#/definitions/Language/item" } }
+    },
+    "TranslationAddition": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8}$" },
+          "transcription": { "type": "string" },
+          "audioFileId": { "type": "string" },
+          "wordTranslations": { "$ref": "#/definitions/WordTranslation/items" }
+        },
+        "additionalProperties": false
+      },
+      "items": { "type": "array", "items": { "$ref": "#/definitions/TranslationAddition/item" } }
+    },
+    "Book": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8}$" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "coverFileId": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "items": { "type": "array", "items": { "$ref": "#/definitions/Book/item" } }
+    },
+    "File": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8}$" },
+          "name": { "type": "string" },
+          "url": { "type": "string" },
+          "path": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "items": { "type": "array", "items": { "$ref": "#/definitions/File/item" } }
+    }
+  },
+  "properties": {
+    "user": { "$ref": "#/definitions/User/items" },
+    "userProfile": { "$ref": "#/definitions/UserProfile/items" },
+    "lesson": { "$ref": "#/definitions/Lesson/items" },
+    "lessonTimes": { "$ref": "#/definitions/LessonTimes/items" },
+    "times": { "$ref": "#/definitions/Times/items" },
+    "result": { "$ref": "#/definitions/Result/items" },
+    "resultWord": { "$ref": "#/definitions/ResultWord/items" },
+    "speechPart": { "$ref": "#/definitions/SpeechPart/items" },
+    "word": { "$ref": "#/definitions/Word/items" },
+    "wordTranslation": { "$ref": "#/definitions/WordTranslation/items" },
+    "language": { "$ref": "#/definitions/Language/items" },
+    "translationAddition": { "$ref": "#/definitions/TranslationAddition/items" },
+    "book": { "$ref": "#/definitions/Book/items" },
+    "file": { "$ref": "#/definitions/File/items" },
+    "$schema": { "type": "string", "format": "uri" }
+  },
+  "additionalProperties": false
+}
