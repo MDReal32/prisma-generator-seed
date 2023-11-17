@@ -45,26 +45,26 @@
     "prisma:seed": "yarn prisma db seed"
   },
   "dependencies": {
-    "@prisma/client": "^5.5.2",
-    "@prisma/generator-helper": "^5.5.2",
-    "@prisma/internals": "^5.5.2",
-    "json-schema": "^0.4.0",
-    "prisma": "^5.5.2",
-    "uuid": "^9.0.1"
+    "@prisma/client": "5.6.0",
+    "@prisma/generator-helper": "5.6.0",
+    "@prisma/internals": "5.6.0",
+    "json-schema": "0.4.0",
+    "prisma": "5.6.0",
+    "uuid": "9.0.1"
   },
   "devDependencies": {
-    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "@types/jest": "^29.5.8",
-    "@types/json-schema": "^7.0.15",
-    "@types/node": "^20.9.0",
-    "@types/prettier": "^3.0.0",
-    "@types/uuid": "^9",
-    "prettier": "^3.1.0",
-    "prettier-plugin-packagejson": "^2.4.6",
-    "ts-node": "^10.9.1",
-    "ts-toolbelt": "^9.6.0",
-    "type-fest": "^4.7.1",
-    "typescript": "^5.2.2"
+    "@trivago/prettier-plugin-sort-imports": "4.3.0",
+    "@types/jest": "29.5.8",
+    "@types/json-schema": "7.0.15",
+    "@types/node": "20.9.0",
+    "@types/prettier": "3.0.0",
+    "@types/uuid": "9.0.7",
+    "prettier": "3.1.0",
+    "prettier-plugin-packagejson": "2.4.6",
+    "ts-node": "10.9.1",
+    "ts-toolbelt": "9.6.0",
+    "type-fest": "4.7.1",
+    "typescript": "5.2.2"
   },
   "packageManager": "yarn@4.0.1",
   "prisma": {

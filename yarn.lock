@@ -313,7 +313,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/client@npm:^5.5.2":
+"@prisma/client@npm:5.6.0":
   version: 5.6.0
   resolution: "@prisma/client@npm:5.6.0"
   dependencies:
@@ -377,7 +377,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/generator-helper@npm:5.6.0, @prisma/generator-helper@npm:^5.5.2":
+"@prisma/generator-helper@npm:5.6.0":
   version: 5.6.0
   resolution: "@prisma/generator-helper@npm:5.6.0"
   dependencies:
@@ -407,7 +407,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/internals@npm:^5.5.2":
+"@prisma/internals@npm:5.6.0":
   version: 5.6.0
   resolution: "@prisma/internals@npm:5.6.0"
   dependencies:
@@ -471,7 +471,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trivago/prettier-plugin-sort-imports@npm:^4.3.0":
+"@trivago/prettier-plugin-sort-imports@npm:4.3.0":
   version: 4.3.0
   resolution: "@trivago/prettier-plugin-sort-imports@npm:4.3.0"
   dependencies:
@@ -562,7 +562,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:^29.5.8":
+"@types/jest@npm:29.5.8":
   version: 29.5.8
   resolution: "@types/jest@npm:29.5.8"
   dependencies:
@@ -572,7 +572,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/json-schema@npm:^7.0.15":
+"@types/json-schema@npm:7.0.15":
   version: 7.0.15
   resolution: "@types/json-schema@npm:7.0.15"
   checksum: a996a745e6c5d60292f36731dd41341339d4eeed8180bb09226e5c8d23759067692b1d88e5d91d72ee83dfc00d3aca8e7bd43ea120516c17922cbcb7c3e252db
@@ -586,7 +586,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^20.9.0":
+"@types/node@npm:*, @types/node@npm:20.9.0":
   version: 20.9.0
   resolution: "@types/node@npm:20.9.0"
   dependencies:
@@ -602,7 +602,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/prettier@npm:^3.0.0":
+"@types/prettier@npm:3.0.0":
   version: 3.0.0
   resolution: "@types/prettier@npm:3.0.0"
   dependencies:
@@ -625,7 +625,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/uuid@npm:^9":
+"@types/uuid@npm:9.0.7":
   version: 9.0.7
   resolution: "@types/uuid@npm:9.0.7"
   checksum: b329ebd4f9d1d8e08d4f2cc211be4922d70d1149f73d5772630e4a3acfb5170c6d37b3d7a39a0412f1a56e86e8a844c7f297c798b082f90380608bf766688787
@@ -1799,7 +1799,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"json-schema@npm:^0.4.0":
+"json-schema@npm:0.4.0":
   version: 0.4.0
   resolution: "json-schema@npm:0.4.0"
   checksum: d4a637ec1d83544857c1c163232f3da46912e971d5bf054ba44fdb88f07d8d359a462b4aec46f2745efbc57053365608d88bc1d7b1729f7b4fc3369765639ed3
@@ -2291,7 +2291,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-packagejson@npm:^2.4.6":
+"prettier-plugin-packagejson@npm:2.4.6":
   version: 2.4.6
   resolution: "prettier-plugin-packagejson@npm:2.4.6"
   dependencies:
@@ -2306,7 +2306,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:*, prettier@npm:^3.1.0":
+"prettier@npm:*, prettier@npm:3.1.0":
   version: 3.1.0
   resolution: "prettier@npm:3.1.0"
   bin:
@@ -2330,31 +2330,31 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "prisma-generator-seed@workspace:."
   dependencies:
-    "@prisma/client": "npm:^5.5.2"
-    "@prisma/generator-helper": "npm:^5.5.2"
-    "@prisma/internals": "npm:^5.5.2"
-    "@trivago/prettier-plugin-sort-imports": "npm:^4.3.0"
-    "@types/jest": "npm:^29.5.8"
-    "@types/json-schema": "npm:^7.0.15"
-    "@types/node": "npm:^20.9.0"
-    "@types/prettier": "npm:^3.0.0"
-    "@types/uuid": "npm:^9"
-    json-schema: "npm:^0.4.0"
-    prettier: "npm:^3.1.0"
-    prettier-plugin-packagejson: "npm:^2.4.6"
-    prisma: "npm:^5.5.2"
-    ts-node: "npm:^10.9.1"
-    ts-toolbelt: "npm:^9.6.0"
-    type-fest: "npm:^4.7.1"
-    typescript: "npm:^5.2.2"
-    uuid: "npm:^9.0.1"
+    "@prisma/client": "npm:5.6.0"
+    "@prisma/generator-helper": "npm:5.6.0"
+    "@prisma/internals": "npm:5.6.0"
+    "@trivago/prettier-plugin-sort-imports": "npm:4.3.0"
+    "@types/jest": "npm:29.5.8"
+    "@types/json-schema": "npm:7.0.15"
+    "@types/node": "npm:20.9.0"
+    "@types/prettier": "npm:3.0.0"
+    "@types/uuid": "npm:9.0.7"
+    json-schema: "npm:0.4.0"
+    prettier: "npm:3.1.0"
+    prettier-plugin-packagejson: "npm:2.4.6"
+    prisma: "npm:5.6.0"
+    ts-node: "npm:10.9.1"
+    ts-toolbelt: "npm:9.6.0"
+    type-fest: "npm:4.7.1"
+    typescript: "npm:5.2.2"
+    uuid: "npm:9.0.1"
   bin:
     prisma-generator-seed: ./bin/generator
     prisma-seeder: ./bin/seeder
   languageName: unknown
   linkType: soft
 
-"prisma@npm:^5.5.2":
+"prisma@npm:5.6.0":
   version: 5.6.0
   resolution: "prisma@npm:5.6.0"
   dependencies:
@@ -2912,7 +2912,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-node@npm:^10.9.1":
+"ts-node@npm:10.9.1":
   version: 10.9.1
   resolution: "ts-node@npm:10.9.1"
   dependencies:
@@ -2957,7 +2957,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-toolbelt@npm:^9.6.0":
+"ts-toolbelt@npm:9.6.0":
   version: 9.6.0
   resolution: "ts-toolbelt@npm:9.6.0"
   checksum: 838f9a2f0fe881d5065257a23b402c41315b33ff987b73db3e2b39fcb70640c4c7220e1ef118ed5676763543724fdbf4eda7b0e2c17acb667ed1401336af9f8c
@@ -2968,6 +2968,13 @@ __metadata:
   version: 2.6.2
   resolution: "tslib@npm:2.6.2"
   checksum: e03a8a4271152c8b26604ed45535954c0a45296e32445b4b87f8a5abdb2421f40b59b4ca437c4346af0f28179780d604094eb64546bee2019d903d01c6c19bdb
+  languageName: node
+  linkType: hard
+
+"type-fest@npm:4.7.1":
+  version: 4.7.1
+  resolution: "type-fest@npm:4.7.1"
+  checksum: e2cae05a6a5be98e5e5cfecee8782db1eb74594ceb1d85b5bfdb9b9ca5e236342f97435d3ff9edddd8eb92898af7f13555f85d1a53a69c362b0f56f2cceb8151
   languageName: node
   linkType: hard
 
@@ -2999,14 +3006,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"type-fest@npm:^4.7.1":
-  version: 4.7.1
-  resolution: "type-fest@npm:4.7.1"
-  checksum: e2cae05a6a5be98e5e5cfecee8782db1eb74594ceb1d85b5bfdb9b9ca5e236342f97435d3ff9edddd8eb92898af7f13555f85d1a53a69c362b0f56f2cceb8151
-  languageName: node
-  linkType: hard
-
-"typescript@npm:^5.2.2":
+"typescript@npm:5.2.2":
   version: 5.2.2
   resolution: "typescript@npm:5.2.2"
   bin:
@@ -3016,7 +3016,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^5.2.2#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A5.2.2#optional!builtin<compat/typescript>":
   version: 5.2.2
   resolution: "typescript@patch:typescript@npm%3A5.2.2#optional!builtin<compat/typescript>::version=5.2.2&hash=f3b441"
   bin:
@@ -3072,7 +3072,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^9.0.1":
+"uuid@npm:9.0.1":
   version: 9.0.1
   resolution: "uuid@npm:9.0.1"
   bin:
