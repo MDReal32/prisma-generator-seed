@@ -35,11 +35,13 @@
     "bin",
     "build",
     "src",
-    "package.json"
+    "package.json",
+    "tsconfig.json"
   ],
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "dev": "tsc --project tsconfig.json --watch",
+    "postinstall": "tsc --project tsconfig.json",
     "prepublishOnly": "yarn build",
     "prisma:migrate": "prisma migrate dev --name",
     "prisma:seed": "yarn prisma db seed"
