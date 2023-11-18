@@ -6,8 +6,8 @@ import { JSONSchema7, validate } from "json-schema";
 import { PrismaClient } from "@prisma/client";
 
 import { seedData } from "./core/seed-data";
-import { Transformer } from "./core/transformer";
 import { Seed } from "./types/seed";
+import { Config } from "./core/transformer";
 
 const getAllSeeds = `SELECT * FROM "_prisma_migrations"`;
 
@@ -17,8 +17,8 @@ const main = async () => {
   await prisma.$connect();
 
   const migratedSeeds = await prisma.$queryRawUnsafe<Seed[]>(getAllSeeds);
-  await Transformer.loadConfigFromDisk();
-  const config = Transformer.getConfig();
+  await Config.loadConfigFromDisk();
+  const config = Config.getConfig();
   const seeds = await readdir(config.seedsDir);
 
   const schemaFile = `${config.output}/schema.json`;
