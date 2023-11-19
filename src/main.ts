@@ -1,4 +1,5 @@
-import { readFile, readdir } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { mkdir, readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
 import { JSONSchema7, validate } from "json-schema";
@@ -20,6 +21,7 @@ export const prisma = new PrismaClient();
   const migratedSeeds = await prisma.$queryRawUnsafe<Seed[]>(getAllSeeds);
   await Config.loadConfigFromDisk();
   const config = Config.getConfig();
+  if (!existsSync(config.seedsDir)) await mkdir(config.seedsDir, { recursive: true });
   const seeds = await readdir(config.seedsDir);
 
   const schema = JSON.parse(await readFile(config.schemaFile, "utf-8")) as JSONSchema7;
