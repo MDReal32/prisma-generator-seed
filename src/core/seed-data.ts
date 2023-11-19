@@ -1,115 +1,130 @@
 import * as crypto from "node:crypto";
-import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, extname, resolve } from "node:path";
 
 import { existsSync } from "fs";
 import { v4 } from "uuid";
 
+import { PrismaClientValidationError } from "@prisma/client/runtime/library";
+
 import { prisma } from "../main";
 import { Seed } from "../types/seed";
-import { insert } from "../utils/insert";
+import { SeedDataOptions } from "../types/seed-data-options";
+import { SeedDatum } from "../types/seed-datum";
+import { codes } from "../utils/codes";
+import { Config } from "../utils/config";
+import { insertPrismaMigration } from "../utils/insert-prisma-migration";
 import { serialize } from "../utils/serialize";
-import { Transformer } from "./transformer";
+import { queueDataPushing } from "./queue-data-pushing";
 
-interface Data {
-  data: any[];
-  upsertBy: string[];
-}
+export class SeedData {
+  private readonly pureName: string;
+  private readonly checksum: string;
+  private readonly foundSeed: Seed;
 
-interface Options {
-  name: string;
-  migratedSeeds: Seed[];
-}
+  private startedAt: Date;
+  private finishedAt: Date;
 
-export const seedData = async (anySeed: Record<string, Data>, options: Options) => {
-  const pureName = options.name.replace(extname(options.name), "");
+  constructor(
+    private readonly seed: Record<string, unknown[]>,
+    private readonly options: SeedDataOptions
+  ) {
+    this.pureName = this.options.name.replace(extname(this.options.name), "");
 
-  const foundSeed = options.migratedSeeds.find(({ migration_name }) =>
-    migration_name.endsWith(pureName)
-  );
+    this.foundSeed = this.options.migratedSeeds.find(({ migration_name }) =>
+      migration_name.endsWith(this.pureName)
+    );
 
-  const config = Transformer.getConfig();
-  const checksum = crypto.createHash("sha256").update(serialize(anySeed)).digest("hex");
+    this.checksum = crypto.createHash("sha256").update(serialize(this.seed)).digest("hex");
+  }
 
-  if (foundSeed) {
-    const sha256FilePath = resolve(config.migrationsDir, foundSeed.migration_name, "seed.sha256");
-    if (existsSync(sha256FilePath)) {
-      const prevChecksum = await readFile(sha256FilePath, "utf-8").catch(() => null);
-      if (prevChecksum === checksum) {
-        console.log(`\x1b[2mSeed "${options.name}" seeded successfully before.\x1b[0m`);
-        return;
-      } else {
-        throw new Error(`Seed "${options.name}" is invalid. Please rollback to previous seed.`);
+  async execute() {
+    await this.pre();
+    this.startedAt = new Date();
+    await this.init();
+    this.finishedAt = new Date();
+    await this.post();
+  }
+
+  private async pre() {
+    const config = Config.getConfig();
+    if (this.foundSeed) {
+      const sha256FilePath = resolve(
+        config.migrationsDir,
+        this.foundSeed.migration_name,
+        "seed.sha256"
+      );
+      if (existsSync(sha256FilePath)) {
+        const prevChecksum = await readFile(sha256FilePath, "utf-8").catch(() => null);
+        if (prevChecksum === this.checksum) {
+          console.log(`\x1b[2m${codes.S0003(this.options.name)}\x1b[0m`);
+          return;
+        } else {
+          throw new Error(codes.S0002(this.options.name));
+        }
       }
     }
   }
 
-  const startedAt = new Date();
-  const tables = Object.keys(anySeed);
-  await prisma.$transaction(async prisma => {
+  private async init() {
+    const tables = Object.keys(this.seed);
+    const dataQueue: SeedDatum[] = [];
+
     for (const table of tables) {
-      const values = anySeed[table];
+      // console.log(`\x1b[2mSeeding "${table}" table...\x1b[0m`);
+      const data = this.seed[table];
+      const { paths, data: convertedData } = await queueDataPushing(table, data);
+      dataQueue.push({ table, data: convertedData, paths });
+    }
 
-      for (const datum of values.data) {
-        if (values.upsertBy) {
-          const where =
-            values.upsertBy.reduce((acc, key) => {
-              acc[key] = datum[key];
-              return acc;
-            }, {}) || {};
+    await prisma.$transaction(async prisma => {
+      for (const { table, data, paths } of dataQueue) {
+        const dataArray = Array.isArray(data) ? data : [data];
 
-          await prisma[table].upsert({
-            create: datum,
-            update: datum,
-            where: where as any
-          });
-        } else {
+        for (const datum of dataArray) {
           try {
             await prisma[table].create({ data: datum });
-          } catch (e) {
-            if (e.code === "P2002") {
-              return console.warn(
-                `Please add "upsertBy" to "${table}" seed data for finding duplicates. We can't create duplicate data.`
-              );
+          } catch (error) {
+            if (error instanceof PrismaClientValidationError) {
+              const m = error.message.match(/Argument `(\w+)` is missing\./);
+              if (m) {
+                console.log(error);
+                throw new Error(codes.S0014(m[1], this.options.name, paths.join("\n")));
+              }
             }
 
-            throw e;
+            throw error;
           }
         }
       }
-    }
-  });
+    });
+  }
 
-  const date = new Date();
-  const time = [
-    date.getFullYear(),
-    date.getMonth() + 1,
-    date.getDate(),
-    date.getHours(),
-    date.getMinutes(),
-    date.getSeconds()
-  ].join("");
-  const seedName = `${time}_${pureName}`;
+  private async post() {
+    const date = new Date();
+    const time = [
+      date.getFullYear(),
+      date.getMonth() + 1,
+      date.getDate(),
+      date.getHours(),
+      date.getMinutes(),
+      date.getSeconds()
+    ].join("");
+    const seedName = `${time}_${this.pureName}`;
 
-  const finishedAt = new Date();
-  const newSha256FilePath = resolve(config.migrationsDir, seedName, "seed.sha256");
-
-  await mkdir(resolve(dirname(newSha256FilePath)), { recursive: true });
-  await writeFile(newSha256FilePath, checksum);
-  await writeFile(resolve(config.migrationsDir, seedName, "migration.sql"), ``);
-
-  console.log(
-    `\x1b[2mSeed "${options.name}" seeded successfully.\x1b[0m`,
-    `\x1b[2mChecksum: ${checksum}\x1b[0m`
-  );
-  await insert({
-    id: v4(),
-    migration_name: seedName,
-    started_at: startedAt,
-    finished_at: finishedAt,
-    applied_steps_count: 1,
-    checksum: crypto.createHash("sha256").update(``).digest("hex"),
-    logs: null,
-    rolled_back_at: null
-  });
-};
+    console.log(
+      `\x1b[2mSeed "${this.options.name}" seeded successfully.\x1b[0m`,
+      `\x1b[2mChecksum: ${this.checksum}\x1b[0m`
+    );
+    await insertPrismaMigration({
+      id: v4(),
+      migration_name: seedName,
+      started_at: this.startedAt,
+      finished_at: this.finishedAt,
+      applied_steps_count: 1,
+      checksum: this.checksum,
+      logs: null,
+      rolled_back_at: null
+    });
+  }
+}

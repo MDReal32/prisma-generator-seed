@@ -3,7 +3,8 @@ import { dirname, resolve } from "node:path";
 import { GeneratorOptions } from "@prisma/generator-helper";
 import { getDMMF } from "@prisma/internals";
 
-import { Config, Transformer } from "./core/transformer";
+import { Transformer } from "./core/transformer";
+import { Config } from "./utils/config";
 import { getGeneratorConfigByProvider } from "./utils/get-generator-config-by-provider";
 
 export const generate = async ({
@@ -32,7 +33,8 @@ export const generate = async ({
     prettyNames: {},
     relationalFields: {},
     relationalModels: {},
-    uniqueFields: {}
+    uniqueFields: {},
+    primaryKeys: {}
   };
 
   Config.setConfig(config);

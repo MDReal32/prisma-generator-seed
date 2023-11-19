@@ -1,92 +1,27 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
-import { inspect } from "node:util";
+import { mkdir, writeFile } from "node:fs/promises";
 
 import { JSONSchema7, JSONSchema7Definition } from "json-schema";
 import { format, resolveConfig } from "prettier";
-import { PartialDeep } from "type-fest";
 
 import { DMMF } from "@prisma/generator-helper";
 
 import { codes } from "../utils/codes";
+import { Config } from "../utils/config";
+import { SchemaBuilder } from "../utils/schema-builder";
 
-interface ArrayOptions {
-  uniqueItems?: boolean;
-  minItems?: number;
-}
-
-interface ObjectOptions {
-  required?: string[];
-  additionalProperties?: boolean;
-}
-
-export interface Config {
-  output: string;
-  seedsDir: string;
-  migrationsDir: string;
-  publishable: boolean;
-  schemaFile: string;
-  uniqueFields: Record<string, string[]>;
-  relationalFields: Record<string, string>;
-  relationalModels: Record<string, string[]>;
-  prettyNames: Record<string, string>;
-}
-
-export class Config {
-  private static readonly configFile = resolve(
-    process.cwd(),
-    "node_modules/.prisma/seed/config.json"
-  );
-  private declare static config: Config;
-
-  static setConfig(config: PartialDeep<Config>) {
-    this.config = { ...this.config, ...config };
-  }
-
-  static getConfig() {
-    return this.config;
-  }
-
-  static async loadConfigFromDisk() {
-    try {
-      this.config = JSON.parse(await readFile(this.configFile, "utf-8"));
-    } catch (e) {}
-  }
-
-  static async saveConfigToDisk() {
-    await mkdir(dirname(this.configFile), { recursive: true });
-    await writeFile(
-      this.configFile,
-      await format(JSON.stringify(this.config), {
-        parser: "json",
-        ...(await resolveConfig(".prettierrc"))
-      })
-    );
-  }
-
-  static inspect(...data: any[]) {
-    console.log(
-      ...data.map(datum =>
-        typeof datum === "object" ? inspect(datum, { depth: Infinity, colors: true }) : datum
-      )
-    );
-  }
-}
-
-export class Transformer {
+export class Transformer extends SchemaBuilder {
   private readonly schema: JSONSchema7 = { $schema: "http://json-schema.org/draft-07/schema" };
 
   private declare enumObjects: Record<string, DMMF.DatamodelEnum>;
   private disabledFields: Record<string, true> = {};
 
-  private fields: Record<string, DMMF.Field> = {};
-  private idFields: Record<string, DMMF.Field> = {};
-
   constructor(
     private readonly models: DMMF.Model[],
     private readonly enums: DMMF.DatamodelEnum[],
     private readonly types: DMMF.Model[]
-  ) {}
+  ) {
+    super();
+  }
 
   prepare() {
     const config = Config.getConfig();
@@ -102,16 +37,21 @@ export class Transformer {
 
     const relationalFields: Record<string, string> = {};
     const relationalModels: Record<string, string[]> = {};
+    const primaryKeys: Record<string, string> = {};
+
     const cache = new Map<string, DMMF.Field>();
     for (const model of this.models) {
       model.fields
         .map(field => {
-          this.fields[`${model.name}#${field.name}`] = field;
-          field.isId && (this.idFields[model.name] = field);
+          field.isId && (primaryKeys[model.name] = field.name);
           return field;
         })
         .filter(field => field.kind === "object")
         .forEach(field => {
+          field.relationFromFields.forEach(
+            field => (this.disabledFields[`${model.name}#${field}`] = true)
+          );
+
           if (!cache.has(field.relationName)) {
             return cache.set(field.relationName, field);
           }
@@ -150,6 +90,7 @@ export class Transformer {
 
     config.relationalFields = relationalFields;
     config.relationalModels = relationalModels;
+    config.primaryKeys = primaryKeys;
 
     const uniqueFieldsObject: Record<string, string[]> = {};
     for (const model of this.models) {
@@ -167,7 +108,7 @@ export class Transformer {
     this.schema.definitions = this.models.reduce((acc, model) => {
       const tableName = model.name;
       acc[tableName] = {
-        item: this.convertModelToType(model),
+        item: this.convertModelToType(model, false),
         items: this.array(this.ref(`#/definitions/${tableName}/item`))
       };
       return acc;
@@ -202,20 +143,18 @@ export class Transformer {
     await Config.saveConfigToDisk();
   }
 
-  private convertModelToType(model: DMMF.Model): JSONSchema7Definition {
-    return {
-      type: "object",
-      properties: model.fields.reduce((acc, field) => {
-        if (!this.isFieldDisabled(model, field)) {
-          const type = field.isId ? this.uuid() : this.convertFieldToType(field);
-          if (type) {
-            acc[field.name] = type;
-          }
+  private convertModelToType(model: DMMF.Model, onlyUniques: boolean): JSONSchema7Definition {
+    const properties = model.fields.reduce((acc, field) => {
+      const isUnique = !onlyUniques || field.isUnique || field.isId || field.kind === "object";
+      if (!this.isFieldDisabled(model, field) && isUnique) {
+        const type = field.isId ? this.uuid() : this.convertFieldToType(field);
+        if (type) {
+          acc[field.name] = type;
         }
-        return acc;
-      }, {}),
-      additionalProperties: false
-    };
+      }
+      return acc;
+    }, {});
+    return this.object(properties, { additionalProperties: false });
   }
 
   private convertFieldToType(field: DMMF.Field) {
@@ -268,80 +207,5 @@ export class Transformer {
 
   private isFieldDisabled(model: DMMF.Model, field: DMMF.Field) {
     return !!this.disabledFields[`${model.name}#${field.name}`];
-  }
-
-  private oneOf(items: JSONSchema7Definition[]): JSONSchema7Definition {
-    return { oneOf: items };
-  }
-
-  private anyOf(items: JSONSchema7Definition[]): JSONSchema7Definition {
-    return { anyOf: items };
-  }
-
-  private allOf(items: JSONSchema7Definition[]): JSONSchema7Definition {
-    return { allOf: items };
-  }
-
-  private const(value: string): JSONSchema7Definition {
-    return { const: value };
-  }
-
-  private array(items: any, options?: ArrayOptions): JSONSchema7Definition {
-    return { type: "array", items, ...options };
-  }
-
-  private object(
-    properties: Record<string, JSONSchema7Definition>,
-    options?: ObjectOptions
-  ): JSONSchema7Definition {
-    return { type: "object", properties, ...options };
-  }
-
-  private enum(values: string[]): JSONSchema7Definition {
-    return this.string({ enum: values });
-  }
-
-  private string(object: object = {}): JSONSchema7Definition {
-    return { type: "string", ...object };
-  }
-
-  private number(object: object = {}): JSONSchema7Definition {
-    return { type: "number", ...object };
-  }
-
-  private boolean(object: object = {}): JSONSchema7Definition {
-    return { type: "boolean", ...object };
-  }
-
-  private date(): JSONSchema7Definition {
-    return this.string({ format: "date-time" });
-  }
-
-  private json(): JSONSchema7Definition {
-    return this.object({}, { additionalProperties: true });
-  }
-
-  private bigint(): JSONSchema7Definition {
-    return this.number({ pattern: "^[0-9]+$" });
-  }
-
-  private bytes(): JSONSchema7Definition {
-    return this.string({ pattern: "^[a-zA-Z0-9+/]+={0,2}$" });
-  }
-
-  private decimal(): JSONSchema7Definition {
-    return this.number({ pattern: "^[0-9]+\\.[0-9]+$" });
-  }
-
-  private url(): JSONSchema7Definition {
-    return this.string({ format: "uri" });
-  }
-
-  private uuid() {
-    return this.string({ pattern: "^[a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8}$" });
-  }
-
-  private ref($ref: string) {
-    return { $ref };
   }
 }

@@ -10,5 +10,10 @@ export const codes = {
     "Multiple relations for same model aren't supported yet. Please contact the developer and introduce your use case for testing feature.",
 
   // Field messages
-  S0013: type => `Unsupported field type: ${type}`
-} satisfies Record<string, string | ((data: string) => string)>;
+  S0013: type => `Unsupported field type: ${type}`,
+  S0014: (field, seed, possiblePaths) =>
+    `Missing field "${field}" inside seed "${seed}". Please fill it or make optional in schema. Possible inside one of that paths: \n${possiblePaths
+      .split("\n")
+      .map(path => `  - ${path}`)
+      .join("\n")}`
+} satisfies Record<string, string | ((...data: string[]) => string)>;

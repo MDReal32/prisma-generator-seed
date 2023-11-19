@@ -5,15 +5,16 @@ import { JSONSchema7, validate } from "json-schema";
 
 import { PrismaClient } from "@prisma/client";
 
-import { seedData } from "./core/seed-data";
+import { SeedData } from "./core/seed-data";
 import { Seed } from "./types/seed";
-import { Config } from "./core/transformer";
+import { codes } from "./utils/codes";
+import { Config } from "./utils/config";
 
 const getAllSeeds = `SELECT * FROM "_prisma_migrations"`;
 
 export const prisma = new PrismaClient();
 
-const main = async () => {
+(async () => {
   await prisma.$connect();
 
   const migratedSeeds = await prisma.$queryRawUnsafe<Seed[]>(getAllSeeds);
@@ -21,8 +22,7 @@ const main = async () => {
   const config = Config.getConfig();
   const seeds = await readdir(config.seedsDir);
 
-  const schemaFile = `${config.output}/schema.json`;
-  const schema = JSON.parse(await readFile(schemaFile, "utf-8")) as JSONSchema7;
+  const schema = JSON.parse(await readFile(config.schemaFile, "utf-8")) as JSONSchema7;
 
   for (const seed of seeds) {
     const seedPath = resolve(config.seedsDir, seed);
@@ -30,15 +30,10 @@ const main = async () => {
     delete seedDataPiece["$schema"];
     const result = validate(seedDataPiece, schema);
     if (!result.valid) {
-      throw new Error(`Seed "${seed}" is invalid.`);
+      throw new Error(codes.S0001(seed));
     }
-    await seedData(seedDataPiece, { name: seed, migratedSeeds });
+    await new SeedData(seedDataPiece, { name: seed, migratedSeeds }).execute();
   }
-
-  Transformer.setConfig(config);
-  await Transformer.saveConfigToDisk();
-};
-
-main()
+})()
   .catch(console.error)
   .finally(() => prisma.$disconnect());
