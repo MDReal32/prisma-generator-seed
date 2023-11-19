@@ -44,7 +44,8 @@
     "postinstall": "tsc --project tsconfig.json",
     "prepublishOnly": "yarn build",
     "prisma:migrate": "prisma migrate dev --name",
-    "prisma:seed": "yarn prisma db seed"
+    "prisma:seed": "yarn prisma db seed",
+    "prisma:studio": "yarn prisma studio"
   },
   "dependencies": {
     "@prisma/client": "5.6.0",
