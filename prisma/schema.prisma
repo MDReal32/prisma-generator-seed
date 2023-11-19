@@ -117,14 +117,13 @@ model WordTranslation {
   id          String @id @default(uuid())
   translation String @unique
 
-  word   Word   @relation(fields: [wordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  wordId String
+  word   Word?   @relation(fields: [wordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  wordId String?
+
+  languages Language[]
 
   translationAddition   TranslationAddition @relation(fields: [translationAdditionId], references: [id])
   translationAdditionId String
-
-  language   Language @relation(fields: [languageId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  languageId String
 }
 
 model Language {
@@ -132,8 +131,10 @@ model Language {
   name String
   code String @unique
 
-  profiles         UserProfile[]
-  wordTranslations WordTranslation[]
+  translation   WordTranslation? @relation(fields: [translationId], references: [id])
+  translationId String?
+
+  profiles UserProfile[]
 }
 
 model TranslationAddition {
