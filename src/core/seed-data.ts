@@ -24,6 +24,7 @@ export class SeedData {
 
   private startedAt: Date;
   private finishedAt: Date;
+  private stop = false;
 
   constructor(
     private readonly seed: Record<string, unknown[]>,
@@ -41,12 +42,13 @@ export class SeedData {
   async execute() {
     await this.pre();
     this.startedAt = new Date();
-    await this.init();
+    !this.stop && (await this.init());
     this.finishedAt = new Date();
-    await this.post();
+    !this.stop && (await this.post());
   }
 
   private async pre() {
+    this.stop = false;
     const config = Config.getConfig();
     if (this.foundSeed) {
       const sha256FilePath = resolve(
@@ -58,7 +60,7 @@ export class SeedData {
         const prevChecksum = await readFile(sha256FilePath, "utf-8").catch(() => null);
         if (prevChecksum === this.checksum) {
           console.log(`\x1b[2m${codes.S0003(this.options.name)}\x1b[0m`);
-          return;
+          this.stop = true;
         } else {
           throw new Error(codes.S0002(this.options.name));
         }
@@ -67,11 +69,12 @@ export class SeedData {
   }
 
   private async init() {
+    this.stop = false;
     const tables = Object.keys(this.seed);
     const dataQueue: SeedDatum[] = [];
 
     for (const table of tables) {
-      // console.log(`\x1b[2mSeeding "${table}" table...\x1b[0m`);
+      console.log(`\x1b[2m${codes.S0004(table)}\x1b[0m`);
       const data = this.seed[table];
       const { paths, data: convertedData } = await queueDataPushing(table, data);
       dataQueue.push({ table, data: convertedData, paths });
@@ -93,6 +96,7 @@ export class SeedData {
               }
             }
 
+            this.stop = true;
             throw error;
           }
         }

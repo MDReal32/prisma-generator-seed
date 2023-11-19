@@ -3,6 +3,7 @@ export const codes = {
   S0001: seed => `Seed "${seed}" is invalid.`,
   S0002: seed => `Seed "${seed}" is invalid. Please rollback to previous seed.`,
   S0003: seed => `Seed "${seed}" seeded successfully before.`,
+  S0004: table => `Seeding table "${table}"...`,
 
   // Common messages
   S0005: "Contact the developer of this package to implement support for prisma types.",
