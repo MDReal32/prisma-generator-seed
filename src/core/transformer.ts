@@ -7,7 +7,7 @@ import { DMMF } from "@prisma/generator-helper";
 
 import { codes } from "../utils/codes";
 import { Config } from "../utils/config";
-import { SchemaBuilder } from "../utils/schema-builder";
+import { ObjectOptions, SchemaBuilder } from "../utils/schema-builder";
 
 export class Transformer extends SchemaBuilder {
   private readonly schema: JSONSchema7 = { $schema: "http://json-schema.org/draft-07/schema" };
@@ -144,17 +144,25 @@ export class Transformer extends SchemaBuilder {
   }
 
   private convertModelToType(model: DMMF.Model, onlyUniques: boolean): JSONSchema7Definition {
+    const required: string[] = [];
     const properties = model.fields.reduce((acc, field) => {
-      const isUnique = !onlyUniques || field.isUnique || field.isId || field.kind === "object";
+      const isUniqueField = field.isUnique || field.isId || field.kind === "object";
+      const isUnique = !onlyUniques || isUniqueField;
       if (!this.isFieldDisabled(model, field) && isUnique) {
         const type = field.isId ? this.uuid() : this.convertFieldToType(field);
         if (type) {
           acc[field.name] = type;
         }
+
+        if (isUniqueField && !field.isId && field.kind !== "object") {
+          required.push(field.name);
+        }
       }
       return acc;
     }, {});
-    return this.object(properties, { additionalProperties: false });
+    const options: ObjectOptions = { additionalProperties: false };
+    required.length && (options.required = required);
+    return this.object(properties, options);
   }
 
   private convertFieldToType(field: DMMF.Field) {

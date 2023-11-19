@@ -1,7 +1,7 @@
 import { JSONSchema7, JSONSchema7Definition } from "json-schema";
 
-type ArrayOptions = Pick<JSONSchema7, "uniqueItems" | "minItems" | "maxItems">;
-type ObjectOptions = Pick<JSONSchema7, "required" | "additionalProperties">;
+export type ArrayOptions = Pick<JSONSchema7, "uniqueItems" | "minItems" | "maxItems">;
+export type ObjectOptions = Pick<JSONSchema7, "required" | "additionalProperties">;
 
 export class SchemaBuilder {
   protected oneOf(items: JSONSchema7Definition[]): JSONSchema7Definition {
